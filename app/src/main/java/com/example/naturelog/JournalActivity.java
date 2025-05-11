@@ -17,6 +17,7 @@ import com.example.naturelog.data.adapter.JournalEntryAdapter;
 import com.example.naturelog.data.db.AppDatabase;
 import com.example.naturelog.data.db.JournalEntry;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -69,14 +70,25 @@ public class JournalActivity extends AppCompatActivity {
                 .setMessage("Are you sure you want to delete this journal entry?")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     Executors.newSingleThreadExecutor().execute(() -> {
+                        // 1. Delete from DB
                         db.journalEntryDao().delete(entry);
+
+                        // 2. Delete associated photo
+                        if (entry.photoPath != null) {
+                            File photoFile = new File(entry.photoPath);
+                            if (photoFile.exists()) {
+                                photoFile.delete(); // Don't worry about result, just try it
+                            }
+                        }
+
                         runOnUiThread(() -> {
                             Toast.makeText(this, "Entry deleted", Toast.LENGTH_SHORT).show();
-                            loadJournalEntries(); // Refresh
+                            loadJournalEntries();
                         });
                     });
                 })
                 .setNegativeButton("No", null)
                 .show();
     }
+
 }

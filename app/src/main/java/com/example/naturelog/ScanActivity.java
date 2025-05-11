@@ -80,6 +80,8 @@ public class ScanActivity extends AppCompatActivity {
 
     private Button btnSave;
 
+    private boolean photoSavedToJournal = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +95,8 @@ public class ScanActivity extends AppCompatActivity {
         btnTakePhoto = findViewById(R.id.btnTakePhoto);
         btnSearchWeb = findViewById(R.id.btnSearchWeb);
         btnSave = findViewById(R.id.btnSave);
+        btnSave.setEnabled(true);
+        btnSave.setAlpha(1.0f);
         progressBar = findViewById(R.id.progressBar);
 
         btnTakePhoto.setOnClickListener(new View.OnClickListener() {
@@ -216,6 +220,18 @@ public class ScanActivity extends AppCompatActivity {
     }
 
     private void dispatchTakePictureIntent() {
+        if (currentPhotoPath != null && !photoSavedToJournal) {
+            File previousPhoto = new File(currentPhotoPath);
+            if (previousPhoto.exists()) {
+                previousPhoto.delete();
+            }
+        }
+
+        // Reset state
+        photoSavedToJournal = false;
+        currentPhotoPath = null;
+        btnSave.setAlpha(1.0f);
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             File photoFile = null;
@@ -320,11 +336,31 @@ public class ScanActivity extends AppCompatActivity {
         Executors.newSingleThreadExecutor().execute(() -> {
             AppDatabase db = AppDatabase.getInstance(getApplicationContext());
             db.journalEntryDao().insert(entry);
+
+
             runOnUiThread(() -> {
                 Toast.makeText(this, "Saved to journal!", Toast.LENGTH_SHORT).show();
+                Button btnSave = findViewById(R.id.btnSave);
+                btnSave.setEnabled(false);
+                btnSave.setAlpha(0.5f); // Optional: dim it to show it's inactive
+
+                photoSavedToJournal = true; // mark as saved
             });
         });
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (!photoSavedToJournal && currentPhotoPath != null) {
+            File photoFile = new File(currentPhotoPath);
+            if (photoFile.exists()) {
+                photoFile.delete();
+            }
+        }
+    }
+
 
 
 
