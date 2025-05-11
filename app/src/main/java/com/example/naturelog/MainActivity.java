@@ -46,32 +46,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        Button btnOpenINat = findViewById(R.id.btnOpenINat);
-//        Button btnPasteToken = findViewById(R.id.btnPasteToken);
-//
-//        btnOpenINat.setOnClickListener(v -> {
-//            String url = "https://www.inaturalist.org/users/api_token";
-//            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-//            startActivity(browserIntent);
-//        });
-//
-//        btnPasteToken.setOnClickListener(v -> {
-//            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-//            if (clipboard != null && clipboard.hasPrimaryClip()) {
-//                ClipData clip = clipboard.getPrimaryClip();
-//                if (clip != null && clip.getItemCount() > 0) {
-//                    CharSequence pasted = clip.getItemAt(0).coerceToText(this);
-//                    if (pasted != null && pasted.toString().startsWith("Bearer ")) {
-//                        saveToken(pasted.toString());
-//                        Toast.makeText(this, "Token saved successfully!", Toast.LENGTH_SHORT).show();
-//                    } else {
-//                        Toast.makeText(this, "Clipboard doesn't contain a valid token", Toast.LENGTH_SHORT).show();
-//                    }
-//                } else {
-//                    Toast.makeText(this, "Clipboard is empty", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
+
 
 
 
