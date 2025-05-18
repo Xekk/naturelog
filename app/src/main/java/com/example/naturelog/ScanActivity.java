@@ -2,6 +2,7 @@ package com.example.naturelog;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -131,6 +133,20 @@ public class ScanActivity extends AppCompatActivity {
                 }
             }
         });
+
+        SharedPreferences prefs = getSharedPreferences("inaturalist_prefs", MODE_PRIVATE);
+        boolean tokenInvalid = prefs.getBoolean("token_invalid", false);
+        if (tokenInvalid) {
+            Toast.makeText(this, "Your API token is invalid. Please enter a new one.", Toast.LENGTH_LONG).show();
+            new AlertDialog.Builder(this)
+                    .setTitle("Invalid Token")
+                    .setMessage("Your iNaturalist API token is invalid. Would you like to update it?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        startActivity(new Intent(this, TokenGuideActivity.class));
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        }
 
     }
 
@@ -361,7 +377,17 @@ public class ScanActivity extends AppCompatActivity {
         }
     }
 
+    private String getValidApiToken() {
+        SharedPreferences prefs = getSharedPreferences("inaturalist_prefs", MODE_PRIVATE);
+        String token = prefs.getString("api_token", null);
 
+        if (token == null || prefs.getBoolean("token_invalid", false)) {
+            Toast.makeText(this, "Using fallback API token. Please set a valid one.", Toast.LENGTH_SHORT).show();
+            token = getString(R.string.inat_token); // fallback
+        }
+
+        return token;
+    }
 
 
     private void sendImageToApi(File imageFile, double lat, double lng) {
@@ -369,7 +395,7 @@ public class ScanActivity extends AppCompatActivity {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-        String token = getString(R.string.inat_token);   // Paste your full token here
+        String token = getValidApiToken();
 
         OkHttpClient client = new OkHttpClient.Builder()
                 .connectTimeout(20, TimeUnit.SECONDS)  // ⏱ connection timeout
@@ -410,6 +436,13 @@ public class ScanActivity extends AppCompatActivity {
                 setLoadingState(false);  // 👈 Hide spinner
                 tvResult = findViewById(R.id.tvResult);
                 tvLocation = findViewById(R.id.tvLocation);
+
+                if (response.code() == 401) {
+                    SharedPreferences prefs = getSharedPreferences("inaturalist_prefs", MODE_PRIVATE);
+                    prefs.edit().putBoolean("token_invalid", true).apply();
+                    Toast.makeText(ScanActivity.this, "Invalid token. Please update it.", Toast.LENGTH_LONG).show();
+                }
+
 
                 if (response.isSuccessful() && response.body() != null) {
                     ScoreResponse.Result top = response.body().results.get(0);

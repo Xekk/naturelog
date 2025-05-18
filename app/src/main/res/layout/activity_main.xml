@@ -31,17 +31,13 @@
         android:backgroundTint="#4D4B4B"
         android:text="View Journal" />
 
-<!--    <Button-->
-<!--        android:id="@+id/btnOpenINat"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Open iNaturalist Login Page" />-->
+    <Button
+        android:id="@+id/btnGetToken"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get API Token"
+        android:layout_marginTop="16dp"/>
 
-<!--    <Button-->
-<!--        android:id="@+id/btnPasteToken"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Paste Token from Clipboard" />-->
 
 
 </LinearLayout>

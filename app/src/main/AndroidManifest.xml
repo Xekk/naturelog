@@ -44,7 +44,7 @@
 
         <activity android:name=".EntryDetailActivity" />
 
-
+        <activity android:name=".TokenGuideActivity" />
 
         <activity
             android:name=".MainActivity"
